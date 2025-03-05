@@ -14,7 +14,7 @@ app.use(cors());
 
 //routes to be defined below later
 app.use("/api/auth", require("./src/routes/authRoutes"));
-// app.use("/api/admin")
+app.use("/api/admin", require("./src/routes/adminRoutes"));
 // app.use("/api/student")
 // app.use("/api/trainer")
 
