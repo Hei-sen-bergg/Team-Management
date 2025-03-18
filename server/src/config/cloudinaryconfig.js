@@ -12,7 +12,7 @@ const storage = new CloudinaryStorage({
 
  cloudinary: cloudinary,
     params: {
-        folder: "images",
+        folder: "student-profiles",
         allowedFormats: ["jpg", "png", "jpeg"],
         transformation: [{ width: 500, height: 500, crop: "limit" }],
     },
