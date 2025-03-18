@@ -1,7 +1,8 @@
-const User = require("../models/usermodel");
-const Trainer = require("../models/trainermodel");
+const User = require("../models/userModel");
+// const Trainer = require("../models/trainermodel");
 const bcrypt = require("bcryptjs");
-const Course = require("../models/coursemodel");
+const Course = require("../models/courseModel");
+const Batch = require("../models/batchModel");
 
 // <------------------Student-------------------->
 
@@ -119,19 +120,21 @@ exports.addTrainer = async (req, res) => {
     if (req.user.role !== "admin")
       return res.status(403).json({ message: "Access denied" });
 
-    const { name, subject, email } = req.body;
+    const { name, subject, email, password } = req.body;
     // const image = req.file ? req.file.path : null;
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     const trainer = new User({
       name,
       subject,
       email,
+      password: hashedPassword,
       role: "trainer",
       createdBy: req.user.id,
     });
     await trainer.save();
     res.status(201).json({ message: "Trainer added successfully", trainer });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -288,19 +291,28 @@ exports.addBatch = async (req, res) => {
         .status(400)
         .json({ message: "Invalid Trainer ID or Trainer does not exist" });
     }
-    const batch = new Batch({
+    // const batch = new Batch({
+    //   courseId,
+    //   batchName,
+    //   startDate,
+    //   trainerId,
+    //   createdBy: req.user.id,
+    // });
+
+    // await batch.save();
+
+    const batch = await Batch.create({
       courseId,
       batchName,
       startDate,
       trainerId,
       createdBy: req.user.id,
     });
-    error;
 
-    await batch.save();
+
     res.status(201).json({ message: "Batch added successfully", batch });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -336,7 +348,6 @@ exports.updateBatch = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
 exports.deleteBatch = async (req, res) => {
   try {
     if (req.user.role !== "admin")
@@ -361,7 +372,7 @@ try {
   const batches = await Batch.find().populate("trainerId", "name").populate("courseId", "name").lean();
   res.status(200).json({ success: true, batches });
 } catch (error) {
-  res.status(500).json({ message: "Server error", error });
+  res.status(500).json({ message: "Server error", error: error.message });
 }
 
 }

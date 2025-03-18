@@ -1,16 +1,17 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const User = require("../models/usermodel");
+const User = require("../models/userModel");
 
 module.exports = async (req, res, next) => {
   try {
-    const token = req.headers("authorization")?.split(" ")[1];
+    const token = req.header("authorization")?.split(" ")[1];
 
     if (!token)
       return res.status(401).json({ msg: "Access Denied ! No token Provided" });
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id).select("-password");
-
+    console.log(req.user);
+    
     if (!req.user)
       return res.status(401).json({ msg: "Unauthorised, User not found" });
 

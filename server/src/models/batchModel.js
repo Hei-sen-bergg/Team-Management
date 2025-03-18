@@ -7,7 +7,7 @@ const batchSchema = new mongoose.Schema({
      courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
      batchName:{ type: String, required: true },
      startDate:{ type: Date, required: true },
-     endDate:{ type: Date },
+    //  endDate:{ type: Date },
      trainerId:{ type: mongoose.Schema.Types.ObjectId, ref: "Trainer", required: true },
 })
 
