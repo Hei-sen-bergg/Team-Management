@@ -36,10 +36,6 @@ router.get("/list-batches",authMiddleware,adminController.listBatches);
 
 
 
-
-
-
-
 router.get("/get-available-options",authMiddleware,adminController.getAvailableOptions);
 router.get("/get-students",authMiddleware, adminController.getStudents);
 router.get("/get-courses", authMiddleware,adminController.getCourses);  

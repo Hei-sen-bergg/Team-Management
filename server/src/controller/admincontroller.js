@@ -134,7 +134,7 @@ exports.addTrainer = async (req, res) => {
     await trainer.save();
     res.status(201).json({ message: "Trainer added successfully", trainer });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -199,7 +199,7 @@ exports.listTrainers = async (req, res) => {
 // <------------------Courses-------------------->
 
 exports.addCourse = async (req, res) => {
-  try {
+  try {addCourse
     if (req.user.role !== "admin")
       return res.status(403).json({ message: "Access denied" });
     const { name, description, duration } = req.body;
@@ -259,10 +259,10 @@ exports.deleteCourse = async (req, res) => {
   }
 };
 
-
 exports.listCourses = async (req, res) => {
   try {
-    if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
 
     const courses = await Course.find();
     res.json({ courses });
@@ -270,7 +270,6 @@ exports.listCourses = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
 
 // <------------------Batch-------------------->
 
@@ -308,7 +307,6 @@ exports.addBatch = async (req, res) => {
       trainerId,
       createdBy: req.user.id,
     });
-
 
     res.status(201).json({ message: "Batch added successfully", batch });
   } catch (error) {
@@ -361,30 +359,27 @@ exports.deleteBatch = async (req, res) => {
   }
 };
 
+exports.listBatches = async (req, res) => {
+  try {
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
 
-
-exports.listBatches= async (req, res) => {
-
-try {
-  if (req.user.role !== "admin")
-    return res.status(403).json({ message: "Access denied" });
-
-  const batches = await Batch.find().populate("trainerId", "name").populate("courseId", "name").lean();
-  res.status(200).json({ success: true, batches });
-} catch (error) {
-  res.status(500).json({ message: "Server error", error: error.message });
-}
-
-}
-
+    const batches = await Batch.find()
+      .populate("trainerId", "name")
+      .populate("courseId", "name")
+      .lean();
+    res.status(200).json({ success: true, batches });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 // <---------------get available options------------------
 
-
 exports.getAvailableOptions = async (req, res) => {
   try {
-    const trainers = await User.findOne({role: "trainer" });
-    const courses = await Course.find();  // Get all courses
+    const trainers = await User.findOne({ role: "trainer" });
+    const courses = await Course.find(); // Get all courses
 
     return res.status(200).json({ trainers, courses });
   } catch (error) {
@@ -393,12 +388,10 @@ exports.getAvailableOptions = async (req, res) => {
   }
 };
 
-
-
-
 exports.getTrainers = async (req, res) => {
   try {
-    if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
 
     const trainers = await User.find({ role: "trainer" });
     res.json(trainers);
@@ -408,12 +401,10 @@ exports.getTrainers = async (req, res) => {
   }
 };
 
-
-
-
 exports.getStudents = async (req, res) => {
   try {
-    if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
 
     const students = await User.find({ role: "student" });
     res.json(students);
@@ -423,17 +414,175 @@ exports.getStudents = async (req, res) => {
   }
 };
 
-
-
-
 exports.getCourses = async (req, res) => {
   try {
-    if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
 
     const courses = await Course.find();
     res.json(courses);
   } catch (error) {
     console.error("Error fetching courses:", error);
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// <------------------ batch allocations------------------->
+
+exports.allocateStudentToBatch = async (req, res) => {
+  try {
+    if (req.user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
+
+    const { studentId, batchId, courseId, trainerId } = req.body;
+
+    if (!studentId || !batchId || !courseId || !trainerId) {
+      return res
+        .status(400)
+        .json({ message: "Please provide all required fields" });
+    }
+
+    const student = await User.findOne({ _id: studentId, role: "student" });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    const course = await Course.findById({ _id: courseId });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    const batch = await Batch.findById(batchId);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
+
+    const trainer = await User.find({ role: "trainer", _id: trainerId });
+    if (!trainer) return res.status(404).json({ message: "Trainer not found" });
+
+    const existingAllocation = await StudentCourseBatch.findOne({
+      studentId,
+      courseId,
+      batchId,
+      trainerId,
+      isActive: true,
+    });
+
+    if (existingAllocation) {
+      return res
+        .status(400)
+        .json({ message: "Student is already allocated to this batch" });
+    }
+
+    const allocation = new StudentCourseBatch({
+      studentId,
+      courseId,
+      batchId,
+      trainerId,
+      createdBy: req.user.id,
+    });
+
+    await allocation.save();
+    const completeAllocation = await StudentCourseBatch.findById(allocation._id)
+      .populate("studentId", "name email")
+      .populate("courseId", "name description")
+      .populate("batchId", "batchName startDate")
+      .populate("trainerId", "trainerName")
+      .lean();
+
+    res.status(201).json({
+      message: "Student allocated to batch successfully",
+      data: completeAllocation,
+    });
+  } catch (error) {
+    console.error("Error allocating student to batch:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.removeBatchAllocation = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only admin can remove allocations.",
+      });
+    }
+    const { id } = req.params;
+    const allocation = await StudentCourseBatch.findById(id);
+    if (!allocation) {
+      return res.status(404).json({
+        success: false,
+        message: "Allocation not found.",
+      });
+    }
+
+    await StudentCourseBatch.findByIdAndDelete(id);
+    return res.status(200).json({
+      success: true,
+      message: "Allocation removed successfully.",
+    });
+  } catch (error) {
+    console.error("Error removing allocation:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+exports.listBatchAllocatons = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only admin can view all allocations.",
+      });
+    }
+
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
+    const allocations = await StudentCourseBatch.find({ isActive: true })
+      .populate("studentId", "name email")
+      .populate("courseId", "name description")
+      .populate("batchId", "batchName startDate")
+      .populate("trainerId", "trainerName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await StudentCourseBatch.countDocuments({ isActive: true });
+    return res.status(200).json({
+      success: true,
+      data: allocations,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: limit,
+      },
+    });
+  } catch (error) {
+    console.error("Error listing allocations:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAvailableOptions = async (req, res) => {
+  try {
+    const trainers = await User.findOne({ role: "trainer" });
+    const courses = await Course.find();
+
+    return res.status(200).json({
+      trainers,
+      courses,
+    });
+  } catch (error) {
+    console.error("Error getting available options:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
