@@ -2,6 +2,8 @@ import React, {useState, useEffect} from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LandingPage from "./components/LandingPage";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 
 
@@ -58,6 +60,38 @@ function App(){
 
 
     {/* Auth Routes */}
+
+    <Route
+          path="/login"
+          element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to={getDashboardRedirect()} />}
+        />
+
+    <Route
+          path="/register"
+          element={!isAuthenticated ? <Register /> : <Navigate to={getDashboardRedirect()} />}
+        /> 
+
+
+
+{/* Admin only routes */}
+
+        <Route
+          path="/users"
+          element={isAuthenticated && user?.role === "admin" ? <Users /> : <Navigate to="/adminDashboard" />}
+        />
+
+        <Route
+          path="/trainers"
+          element={isAuthenticated && user?.role === "admin" ? <Trainers /> : <Navigate to="/adminDashboard" />}
+        />
+        <Route
+          path="/courses"
+          element={isAuthenticated && user?.role === "admin" ? <Courses /> : <Navigate to="/adminDashboard" />}
+        />
+        <Route
+          path="/batches"
+          element={isAuthenticated && user?.role === "admin" ? <Batches /> : <Navigate to="/adminDashboard" />}
+        />
 
 
 

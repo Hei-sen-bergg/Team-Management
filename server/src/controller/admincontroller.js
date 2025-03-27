@@ -285,28 +285,29 @@ exports.addBatch = async (req, res) => {
     }
 
     const trainer = await User.findOne({ _id: trainerId, role: "trainer" });
+    console.log(trainer);
     if (!trainer) {
       return res
         .status(400)
         .json({ message: "Invalid Trainer ID or Trainer does not exist" });
     }
-    // const batch = new Batch({
-    //   courseId,
-    //   batchName,
-    //   startDate,
-    //   trainerId,
-    //   createdBy: req.user.id,
-    // });
-
-    // await batch.save();
-
-    const batch = await Batch.create({
+    const batch = new Batch({
       courseId,
       batchName,
       startDate,
       trainerId,
       createdBy: req.user.id,
     });
+
+    await batch.save();
+
+    // const batch = await Batch.create({
+    //   courseId,
+    //   batchName,
+    //   startDate,
+    //   trainerId,
+    //   createdBy: req.user.id,
+    // });
 
     res.status(201).json({ message: "Batch added successfully", batch });
   } catch (error) {
