@@ -199,7 +199,7 @@ exports.listTrainers = async (req, res) => {
 // <------------------Courses-------------------->
 
 exports.addCourse = async (req, res) => {
-  try {addCourse
+  try {
     if (req.user.role !== "admin")
       return res.status(403).json({ message: "Access denied" });
     const { name, description, duration } = req.body;
@@ -212,7 +212,7 @@ exports.addCourse = async (req, res) => {
     await course.save();
     res.status(201).json({ message: "Course added successfully", course });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -275,8 +275,10 @@ exports.listCourses = async (req, res) => {
 
 exports.addBatch = async (req, res) => {
   try {
-    if (req.user.role !== "admin")
+    if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Access denied" });
+    }
+    
     const { courseId, batchName, startDate, trainerId } = req.body;
 
     const course = await Course.findById(courseId);
@@ -369,6 +371,7 @@ exports.listBatches = async (req, res) => {
       .populate("trainerId", "name")
       .populate("courseId", "name")
       .lean();
+      
     res.status(200).json({ success: true, batches });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

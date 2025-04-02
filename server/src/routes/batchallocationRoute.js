@@ -14,12 +14,12 @@ router.delete(  "/remove-allocation/:id",   authMiddleware,
 );
 
 // View all batch allocations (with pagination)
-router.get("/batch-allocations",authMiddleware,adminController.listBatchAllocations);
+router.get("/batch-allocations",authMiddleware,adminController.listBatchAllocatons);
 
 // Optionally get allocations for a specific student
 router.get(  "/student-allocations/:studentId", 
   authMiddleware, 
-  adminController.listBatchAllocations
+  adminController.listBatchAllocatons
 );
 
 module.exports = router;

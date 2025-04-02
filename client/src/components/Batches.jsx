@@ -79,67 +79,141 @@ const BatchManagement = () => {
 
   // Edit Batch (Pre-fill input fields)
   const handleEditBatch = (batch) => {
+    console.log('Batch data:', batch); // Add this line to debug
     setNewBatch({
       batchName: batch.batchName,
       startDate: batch.startDate,
-      trainerId: batch.trainerId._id,  // Store trainerId (not name)
-      courseId: batch.courseId._id,    // Store courseId (not name)
+      trainerId: batch.trainerId?._id || batch.trainerId, // Handle both object and direct ID
+      courseId: batch.courseId?._id || batch.courseId,    // Handle both object and direct ID
     });
     setEditingBatchId(batch._id);
   };
 
   return (
-    <div>
-      <h2>Batch Management</h2>
-      <input
-        type="text"
-        placeholder="Batch Name"
-        value={newBatch.batchName}
-        onChange={(e) => setNewBatch({ ...newBatch, batchName: e.target.value })}
-      />
-      <input
-        type="date"
-        placeholder="Start Date"
-        value={newBatch.startDate}
-        onChange={(e) => setNewBatch({ ...newBatch, startDate: e.target.value })}
-      />
-      <select
-        value={newBatch.trainerId}
-        onChange={(e) => setNewBatch({ ...newBatch, trainerId: e.target.value })}
-      >
-        <option value="">Select Trainer</option>
-        {trainers.map((trainer) => (
-          <option key={trainer._id} value={trainer._id}>
-            {trainer.name}
-          </option>
-        ))}
-      </select>
-      <select
-        value={newBatch.courseId}
-        onChange={(e) => setNewBatch({ ...newBatch, courseId: e.target.value })}
-      >
-        <option value="">Select Course</option>
-        {courses.map((course) => (
-          <option key={course._id} value={course._id}>
-            {course.name}
-          </option>
-        ))}
-      </select>
-      <button onClick={handleSaveBatch}>
-        {editingBatchId ? "Save Changes" : "Add Batch"}
-      </button>
+    <div className="users-container">
+      <div className="page-header">
+        <h2>Batch Management</h2>
+      </div>
 
-      <ul>
-  {batches.map((batch) => (
-    <li key={batch._id}>
-      {batch.batchName} - {batch.startDate} - 
-      Trainer: {batch.trainerId?.name || "Unknown"} -  {/* Display trainer name */}
-      Course: {batch.courseId?.name || "Unknown"} {/* Display course name */}
-      <button onClick={() => handleEditBatch(batch)}>Edit</button>
-      <button onClick={() => handleDeleteBatch(batch._id)}>Delete</button>
-    </li>
-  ))}
-</ul>
+      <div className="content-wrapper">
+        {/* Batch Form */}
+        <div className="card">
+          <h3>{editingBatchId ? "Edit Batch" : "Add New Batch"}</h3>
+          <form className="user-form" onSubmit={(e) => {
+            e.preventDefault();
+            handleSaveBatch();
+          }}>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Batch Name"
+                value={newBatch.batchName}
+                onChange={(e) => setNewBatch({ ...newBatch, batchName: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="date"
+                placeholder="Start Date"
+                value={newBatch.startDate}
+                onChange={(e) => setNewBatch({ ...newBatch, startDate: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <select
+                value={newBatch.trainerId}
+                onChange={(e) => setNewBatch({ ...newBatch, trainerId: e.target.value })}
+                required
+              >
+                <option value="">Select Trainer</option>
+                {trainers.map((trainer) => (
+                  <option key={trainer._id} value={trainer._id}>
+                    {trainer.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <select
+                value={newBatch.courseId}
+                onChange={(e) => setNewBatch({ ...newBatch, courseId: e.target.value })}
+                required
+              >
+                <option value="">Select Course</option>
+                {courses.map((course) => (
+                  <option key={course._id} value={course._id}>
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="button-group">
+              <button type="submit" className="btn-primary">
+                {editingBatchId ? "Save Changes" : "Add Batch"}
+              </button>
+              {editingBatchId && (
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setEditingBatchId(null);
+                    setNewBatch({ batchName: "", startDate: "", trainerId: "", courseId: "" });
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Batches List */}
+        <div className="card table-card">
+          <div className="table-responsive">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Batch Name</th>
+                  <th>Start Date</th>
+                  <th>Trainer</th>
+                  <th>Course</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {batches.map((batch) => (
+                  <tr key={batch._id}>
+                    <td>{batch.batchName}</td>
+                    <td>{new Date(batch.startDate).toLocaleDateString()}</td>
+                    <td>{batch.trainerId?.name || "Unknown"}</td>
+                    <td>{batch.courseId?.name || "Unknown"}</td>
+                    <td className="action-buttons">
+                      <button
+                        className="btn-edit"
+                        onClick={() => handleEditBatch(batch)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDeleteBatch(batch._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

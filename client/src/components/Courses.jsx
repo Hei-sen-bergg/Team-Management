@@ -68,40 +68,110 @@ const CourseManagement = () => {
 
 
   return (
-    <div>
-      <h2>Course Management</h2>
-      <input
-        type="text"
-        placeholder="Course Name"
-        value={newCourse.name}
-        onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
-      />
+    <div className="users-container">
+      <div className="page-header">
+        <h2>Course Management</h2>
+      </div>
 
-      <input
-        type="text"
-        placeholder="Description"
-        value={newCourse.description}
-        onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Duration"
-        value={newCourse.duration}
-        onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })}
-      />
-      <button onClick={handleAddCourse}>
-        {editingCourseId ? "Save Changes" : "Add Course"}
-      </button>
+      <div className="content-wrapper">
+        <div className="form-section">
+          {/* Add Course Form */}
+          <div className="card">
+            <h3>{editingCourseId ? "Edit Course" : "Add New Course"}</h3>
+            <form className="user-form" onSubmit={(e) => {
+              e.preventDefault();
+              handleAddCourse();
+            }}>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Course Name"
+                  value={newCourse.name}
+                  onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
+                  required
+                />
+              </div>
 
-      <ul>
-        {courses.map((course) => (
-          <li key={course._id}>
-            {course.name} - {course.description} - {course.duration}
-            <button onClick={() => handleEditCourse(course)}>Edit</button>
-            <button onClick={() => handleDeleteCourse(course._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={newCourse.description}
+                  onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Duration"
+                  value={newCourse.duration}
+                  onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="button-group">
+                <button type="submit" className="btn-primary">
+                  {editingCourseId ? "Save Changes" : "Add Course"}
+                </button>
+                {editingCourseId && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => {
+                      setEditingCourseId(null);
+                      setNewCourse({ name: "", description: "", duration: "" });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Course List */}
+        <div className="card table-card">
+          <div className="table-responsive">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Course Name</th>
+                  <th>Description</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courses.map((course) => (
+                  <tr key={course._id}>
+                    <td>{course.name}</td>
+                    <td>{course.description}</td>
+                    <td>{course.duration}</td>
+                    <td className="action-buttons">
+                      <button
+                        className="btn-edit"
+                        onClick={() => handleEditCourse(course)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDeleteCourse(course._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

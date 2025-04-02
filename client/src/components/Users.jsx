@@ -81,96 +81,127 @@ function Users() {
 
 
   return (
-    <div>
-      <h2>Users</h2>
+    <div className="users-container">
+      <div className="page-header">
+        <h2>User Management</h2>
+      </div>
 
-      {/* Add User Form */}
-      <form onSubmit={handleAddUser}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={newUser.name}
-          onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={newUser.email}
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={newUser.password}
-          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-          required
-        />
-        <select
-          value={newUser.role}
-          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-        >
-          <option value="student">Student</option>
-          <option value="trainer">Trainer</option>
-        </select>
-        <button type="submit">Add User</button>
-      </form>
+      <div className="content-wrapper">
+        <div className="form-section">
+          {/* Add User Form */}
+          <div className="card">
+            <h3>Add New User</h3>
+            <form onSubmit={handleAddUser} className="user-form">
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                >
+                  <option value="student">Student</option>
+                  <option value="trainer">Trainer</option>
+                </select>
+              </div>
+              <button type="submit" className="btn-primary">Add User</button>
+            </form>
+          </div>
 
-      {/* Edit User Form */}
-      {editUser && (
-        <form onSubmit={handleUpdateUser}>
-          <h3>Edit User</h3>
-          <input
-            type="text"
-            placeholder="Name"
-            value={editUser.name}
-            onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={editUser.email}
-            onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-            required
-          />
-          <select
-            value={editUser.role}
-            onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
-          >
-            <option value="student">Student</option>
-            <option value="trainer">Trainer</option>
-          </select>
-          <button type="submit">Update User</button>
-          <button type="button" onClick={() => setEditUser(null)}>Cancel</button>
-        </form>
-      )}
+          {/* Edit User Form */}
+          {editUser && (
+            <div className="card edit-user-card">
+              <h3>Edit User</h3>
+              <form onSubmit={handleUpdateUser} className="user-form">
+                <div className="form-group">
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={editUser.name}
+                    onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={editUser.email}
+                    onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <select
+                    value={editUser.role}
+                    onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+                  >
+                    <option value="student">Student</option>
+                    <option value="trainer">Trainer</option>
+                  </select>
+                </div>
+                <div className="button-group">
+                  <button type="submit" className="btn-primary">Update</button>
+                  <button type="button" className="btn-secondary" onClick={() => setEditUser(null)}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
 
-      {/* User List */}
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>
-                <button onClick={() => handleEditUser(user)}>Edit</button>
-                <button onClick={() => handleDeleteUser(user._id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {/* User List */}
+        <div className="card table-card">
+          <div className="table-responsive">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td><span className={`role-badge ${user.role}`}>{user.role}</span></td>
+                    <td className="action-buttons">
+                      <button className="btn-edit" onClick={() => handleEditUser(user)}>Edit</button>
+                      <button className="btn-delete" onClick={() => handleDeleteUser(user._id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

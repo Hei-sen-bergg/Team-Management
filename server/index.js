@@ -4,7 +4,6 @@ const cors = require("cors");
 const connectDB = require("./src/config/db");
 
 connectDB();
-
 const app = express();
 
 app.use(express.json());
@@ -21,12 +20,11 @@ app.use(
 app.use("/uploads", express.static("uploads"));
 
 
-//routes to be defined below later
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/admin", require("./src/routes/adminRoutes"));
 app.use("/api/trainer", require("./src/routes/trainerRoutes"));
-app.use("/api/student", require("./src/routes/studentRoute"));  
-app.use("/api/admin", require("./src/routes/batchallocationroutes"));
+app.use("/api/student", require("./src/routes/studentRoutes"));  
+app.use("/api/admin", require("./src/routes/batchallocationRoute"));
 
 
 app.get("/", (req, res) => {
